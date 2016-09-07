@@ -1,4 +1,4 @@
-/car lights being assigned
+//definicion de variables
 int LR = 12;  //luz roja vehicular
 int LA = 11; // 
 int LV = 10; //luz verde vehicular
@@ -9,6 +9,11 @@ int Tpp = 10000;  //tiempo de paso peatonal
 int TvMin=10000; // tiempo de luz verde vehicular minimo
 unsigned long ContTvMin; // almacenar tiempo desde ultima vez que semaforo vehicular se pone en verde
 
+int buzz = 6; //pin buzzer
+int state = digitalRead(boton);
+int cuenta=0;
+
+
 void setup () {
 Serial.begin(9600);
   pinMode(LR, OUTPUT);
@@ -17,22 +22,25 @@ Serial.begin(9600);
   pinMode(LrP, OUTPUT);
   pinMode(LvP, OUTPUT);
   pinMode(boton, INPUT);
+  pinMode (buzz, OUTPUT);
  
   digitalWrite(LV,HIGH); //start with green car light on
   digitalWrite(LrP, HIGH); //start with red ped light on
-  
+   int state = digitalRead(boton);
 }
 
 void loop(){
-	
+  state = digitalRead(boton);
+  Serial.println(cuenta);
+ if(state==HIGH){cuenta=cuenta+1;} 
+// int state = digitalRead(boton);	
   /* check if button is pressed
   and it is over 5 sec since last button press*/
-  int state = digitalRead(boton);
-  Serial.println (state);
-  if(state==HIGH && (millis() - ContTvMin )> TvMin) {
+ if(cuenta>=1 && (millis() - ContTvMin )> TvMin) {
     pasoPeatonal();  //function to change lights
   
   }
+else {state = digitalRead(boton);}
 }
 
 void pasoPeatonal() {
@@ -53,10 +61,19 @@ void pasoPeatonal() {
 
   digitalWrite(LrP,LOW); //red ped light off
   digitalWrite(LvP,HIGH); //green ped light on. allow crossing
-  delay(Tpp); //  delay preset time of 5 seconds
+  for (int j=0; j<5; j++){
+     tone(6, 440,500);
+     delay (1000);
+      tone(6, 330,500);
+     //digitalWrite(buzz,LOW);
+     delay (1000);
+   }//  delay preset time of 5 seconds
+  
   //flashing of ped green light
+
   for (int x=0; x<6; x++){
     digitalWrite(LvP,HIGH);
+    tone(6, 440,250);
     delay(250);
     digitalWrite(LvP,LOW);
     delay(250);
@@ -69,3 +86,5 @@ void pasoPeatonal() {
   digitalWrite(LR,LOW); //car red light off
  
   ContTvMin = millis(); // inicia la cuenta del tiempo en verde minimo 
+ cuenta=0;
+}
